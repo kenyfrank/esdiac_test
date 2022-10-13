@@ -14,6 +14,8 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import io.jsonwebtoken.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 
+@Slf4j
 @Service
 public class AuthServiceImpl implements AuthService {
 
@@ -39,6 +42,65 @@ public class AuthServiceImpl implements AuthService {
 
     @Value("${jwt.accessTokenValidityInMilliseconds}")
     private Long TOKEN_EXPIRY;
+
+    @Override
+    public String createToken(String subject, Date expirationDate) throws JOSEException {
+        JWTClaimsSet.Builder claimBuilder = new JWTClaimsSet.Builder();
+        claimBuilder.expirationTime(expirationDate);
+        claimBuilder.issueTime(new Date());
+        // claimBuilder.issuer(host);
+        claimBuilder.subject(String.valueOf(subject));
+        JWTClaimsSet claimsSet = claimBuilder.build();
+        JWSSigner signer = new MACSigner(TOKEN_SECRET);
+        SignedJWT jwt = new SignedJWT(JWT_HEADER, claimsSet);
+        jwt.sign(signer);
+
+        return jwt.serialize();
+    }
+
+    @Override
+    public String generateAccessToken(PortalUser user) {
+        return Jwts.builder()
+                .setSubject(String.format("%s,%s", user.getUserId(), user.getUsername()))
+                .setIssuer("CodeJava")
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + TOKEN_EXPIRY))
+                .signWith(SignatureAlgorithm.HS512, TOKEN_SECRET)
+                .compact();
+
+    }
+
+    @Override
+    public boolean validateAccessToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(TOKEN_SECRET).parseClaimsJws(token);
+            return true;
+        } catch (ExpiredJwtException ex) {
+            log.error("JWT expired", ex.getMessage());
+        } catch (IllegalArgumentException ex) {
+            log.error("Token is null, empty or only whitespace", ex.getMessage());
+        } catch (MalformedJwtException ex) {
+            log.error("JWT is invalid", ex);
+        } catch (UnsupportedJwtException ex) {
+            log.error("JWT is not supported", ex);
+        } catch (SignatureException ex) {
+            log.error("Signature validation failed");
+        }
+
+        return false;
+    }
+
+    @Override
+    public String getSubject(String token) {
+        return parseClaims(token).getSubject();
+    }
+
+    private Claims parseClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(TOKEN_SECRET)
+                .parseClaimsJws(token)
+                .getBody();
+    }
 
     @Override
     public JWTClaimsSet decodeToken(String authHeader) throws JOSEException, ParseException {
@@ -102,20 +164,6 @@ public class AuthServiceImpl implements AuthService {
                 .expiresIn(String.valueOf(expirationDate.getTime()))
                 .userId(user.getUserId())
                 .build();
-    }
-
-    public String createToken(String subject, Date expirationDate) throws JOSEException {
-        JWTClaimsSet.Builder claimBuilder = new JWTClaimsSet.Builder();
-        claimBuilder.expirationTime(expirationDate);
-        claimBuilder.issueTime(new Date());
-        // claimBuilder.issuer(host);
-        claimBuilder.subject(String.valueOf(subject));
-        JWTClaimsSet claimsSet = claimBuilder.build();
-        JWSSigner signer = new MACSigner(TOKEN_SECRET);
-        SignedJWT jwt = new SignedJWT(JWT_HEADER, claimsSet);
-        jwt.sign(signer);
-
-        return jwt.serialize();
     }
 
 }

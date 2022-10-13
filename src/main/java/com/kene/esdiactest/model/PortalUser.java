@@ -44,6 +44,9 @@ public class PortalUser {
     @Column(name = "DATE_DEACTIVATED")
     protected LocalDateTime dateDeactivated;
 
+    @Column(name = "PASSWORD", nullable = false)
+    private String password;
+
     public Long getId() {
         return id;
     }
@@ -124,4 +127,11 @@ public class PortalUser {
         this.dateDeactivated = dateDeactivated;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

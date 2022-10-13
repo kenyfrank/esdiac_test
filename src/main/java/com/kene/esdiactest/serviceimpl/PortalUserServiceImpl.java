@@ -8,6 +8,8 @@ import com.kene.esdiactest.model.PortalUser;
 import com.kene.esdiactest.service.PortalUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +38,8 @@ public class PortalUserServiceImpl implements PortalUserService {
         portalUser.setLastName(request.getLastName());
         portalUser.setEmail(request.getEmail());
         portalUser.setDateCreated(LocalDateTime.now());
+        portalUser.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
+        portalUserRepository.save(portalUser);
         return portalUser;
     }
 

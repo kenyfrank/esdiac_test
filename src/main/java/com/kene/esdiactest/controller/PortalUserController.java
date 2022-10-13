@@ -8,18 +8,17 @@ import com.kene.esdiactest.model.PortalUser;
 import com.kene.esdiactest.model.enumeration.GenericStatusConstant;
 import com.kene.esdiactest.service.PortalUserService;
 import com.kene.esdiactest.service.RequestPrincipal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
 import javax.inject.Provider;
 import javax.validation.Valid;
 
+@Slf4j
 @RestController
 @RequestMapping("user")
 public class PortalUserController {
@@ -46,7 +45,8 @@ public class PortalUserController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<PortalUser> createUser(@Valid UserRegistrationDto request) {
+    public ResponseEntity<PortalUser> createUser(@RequestBody @Valid UserRegistrationDto request) {
+        log.info("About to create user...");
         return ResponseEntity.status(HttpStatus.CREATED).body(portalUserService.createPortalUser(request));
     }
 }

@@ -9,5 +9,5 @@ public class AuthToken {
     String token;
     String expiresIn;
     String userId;
-    String role;
+
 }
