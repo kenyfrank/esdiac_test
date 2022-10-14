@@ -11,6 +11,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -19,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
-public class JwtTokenFilter extends OncePerRequestFilter {
+public class JwtTokenFilter extends OncePerRequestFilter implements WebMvcConfigurer {
     @Autowired
     private AuthService authService;
 
@@ -40,6 +42,14 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("*").allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowedOrigins("http://localhost:3000/");
+        WebMvcConfigurer.super.addCorsMappings(registry);
+    }
+
     private boolean hasAuthorizationBearer(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         if (ObjectUtils.isEmpty(header) || !header.startsWith("Bearer")) {
@@ -51,6 +61,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private String getAccessToken(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         String token = header.split(" ")[1].trim();
+        logger.info("token:: "+ token);
         return token;
     }
 
@@ -69,8 +80,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private UserDetails getUserDetails(String token) {
         User userDetails = new User();
         String[] jwtSubject = authService.getSubject(token).split(",");
-
-        userDetails.setId(Integer.parseInt(jwtSubject[0]));
+        logger.info("jwtSubject 0:: "+ jwtSubject[0]);
+        logger.info("jwtSubject 1:: "+ jwtSubject[1]);
+        userDetails.setUserId(jwtSubject[0]);
         userDetails.setEmail(jwtSubject[1]);
 
         return userDetails;

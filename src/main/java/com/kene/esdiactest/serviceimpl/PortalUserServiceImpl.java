@@ -53,6 +53,8 @@ public class PortalUserServiceImpl implements PortalUserService {
             pojo.setLastName(it.getLastName());
             pojo.setEmail(it.getEmail());
             pojo.setAddress(it.getAddress());
+            pojo.setDateCreated(it.getDateCreated());
+            pojo.setStatus(it.getStatus().toString());
         });
         return pojo;
     }

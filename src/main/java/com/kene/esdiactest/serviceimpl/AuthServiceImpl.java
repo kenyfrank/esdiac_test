@@ -3,6 +3,7 @@ package com.kene.esdiactest.serviceimpl;
 import com.kene.esdiactest.dao.PortalUserRepository;
 import com.kene.esdiactest.dto.AuthRequest;
 import com.kene.esdiactest.dto.AuthToken;
+import com.kene.esdiactest.dto.User;
 import com.kene.esdiactest.model.PortalUser;
 import com.kene.esdiactest.service.AuthService;
 import com.kene.esdiactest.service.PortalUserService;
@@ -19,10 +20,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.security.Principal;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -88,6 +94,18 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return false;
+    }
+
+    @Override
+    public String getUserIdFromRequest(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        log.info("header:  "+header);
+        String token = header.split(" ")[1].trim();
+        String[] jwtSubject = getSubject(token).split(",");
+        if (jwtSubject.length > 0) {
+            return jwtSubject[0];
+        }
+        return null;
     }
 
     @Override
