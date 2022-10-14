@@ -49,20 +49,6 @@ public class AuthServiceImpl implements AuthService {
     @Value("${jwt.accessTokenValidityInMilliseconds}")
     private Long TOKEN_EXPIRY;
 
-    @Override
-    public String createToken(String subject, Date expirationDate) throws JOSEException {
-        JWTClaimsSet.Builder claimBuilder = new JWTClaimsSet.Builder();
-        claimBuilder.expirationTime(expirationDate);
-        claimBuilder.issueTime(new Date());
-        // claimBuilder.issuer(host);
-        claimBuilder.subject(String.valueOf(subject));
-        JWTClaimsSet claimsSet = claimBuilder.build();
-        JWSSigner signer = new MACSigner(TOKEN_SECRET);
-        SignedJWT jwt = new SignedJWT(JWT_HEADER, claimsSet);
-        jwt.sign(signer);
-
-        return jwt.serialize();
-    }
 
     @Override
     public String generateAccessToken(PortalUser user) {
@@ -99,7 +85,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String getUserIdFromRequest(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
-        log.info("header:  "+header);
         String token = header.split(" ")[1].trim();
         String[] jwtSubject = getSubject(token).split(",");
         if (jwtSubject.length > 0) {
@@ -118,6 +103,22 @@ public class AuthServiceImpl implements AuthService {
                 .setSigningKey(TOKEN_SECRET)
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    /* Below methods are deprecated*/
+    @Override
+    public String createToken(String subject, Date expirationDate) throws JOSEException {
+        JWTClaimsSet.Builder claimBuilder = new JWTClaimsSet.Builder();
+        claimBuilder.expirationTime(expirationDate);
+        claimBuilder.issueTime(new Date());
+        // claimBuilder.issuer(host);
+        claimBuilder.subject(String.valueOf(subject));
+        JWTClaimsSet claimsSet = claimBuilder.build();
+        JWSSigner signer = new MACSigner(TOKEN_SECRET);
+        SignedJWT jwt = new SignedJWT(JWT_HEADER, claimsSet);
+        jwt.sign(signer);
+
+        return jwt.serialize();
     }
 
     @Override

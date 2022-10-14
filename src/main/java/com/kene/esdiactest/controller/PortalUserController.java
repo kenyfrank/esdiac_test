@@ -8,18 +8,14 @@ import com.kene.esdiactest.model.PortalUser;
 import com.kene.esdiactest.model.enumeration.GenericStatusConstant;
 import com.kene.esdiactest.service.AuthService;
 import com.kene.esdiactest.service.PortalUserService;
-import com.kene.esdiactest.service.RequestPrincipal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
-import javax.inject.Provider;
 import javax.validation.Valid;
 
 @Slf4j
@@ -39,7 +35,6 @@ public class PortalUserController {
     public ResponseEntity<UserDetailsPojo> getCurrentUser(HttpServletRequest request) {
         String userId = authService.getUserIdFromRequest(request);
 
-        log.info("String userId: " +userId);
         PortalUser portalUser = portalUserRepository.findByUserId(userId).orElse(null);
         if (portalUser == null) {
             throw new ErrorResponse(HttpStatus.NOT_FOUND.value(), "User not found");

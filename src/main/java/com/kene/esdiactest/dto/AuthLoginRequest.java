@@ -2,7 +2,6 @@ package com.kene.esdiactest.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;
 
@@ -10,9 +9,9 @@ import javax.validation.constraints.NotNull;
 @Setter
 public class AuthLoginRequest {
 
-    @NotNull @Length(min = 4, max = 50)
+    @NotNull(message = "username cannot be blank")
     private String username;
 
-    @NotNull @Length(min = 8, max = 25)
+    @NotNull(message = "password cannot be blank")
     private String password;
 }

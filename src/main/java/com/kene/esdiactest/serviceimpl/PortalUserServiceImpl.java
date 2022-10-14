@@ -9,7 +9,6 @@ import com.kene.esdiactest.service.PortalUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,7 +51,7 @@ public class PortalUserServiceImpl implements PortalUserService {
             pojo.setFirstName(it.getFirstName());
             pojo.setLastName(it.getLastName());
             pojo.setEmail(it.getEmail());
-            pojo.setAddress(it.getAddress());
+//            pojo.setAddress(it.getAddress());
             pojo.setDateCreated(it.getDateCreated());
             pojo.setStatus(it.getStatus().toString());
         });

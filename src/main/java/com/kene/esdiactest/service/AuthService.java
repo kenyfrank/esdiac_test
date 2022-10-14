@@ -13,11 +13,12 @@ import java.text.ParseException;
 import java.util.Date;
 
 public interface AuthService {
-    String createToken(String subject, Date expirationDate) throws JOSEException;
     String generateAccessToken(PortalUser user);
     boolean validateAccessToken(String token);
     String getUserIdFromRequest(HttpServletRequest request);
     String getSubject(String token);
+    /* Below methods are deprecated*/
+    String createToken(String subject, Date expirationDate) throws JOSEException;
     JWTClaimsSet decodeToken(String authHeader)throws JOSEException, ParseException;
     ResponseEntity<?> authenticate(AuthRequest authRequest) throws IOException, JOSEException;
     JWTClaimsSet decodeTokenWithoutVerification(String authHeader) throws JOSEException, ParseException;
